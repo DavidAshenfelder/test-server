@@ -3,19 +3,31 @@ const express = require('express');
 const logger = require('morgan');
 const path = require('path');
 const mongoose = require('mongoose');
-const config = require('./config');
+const devConfig = require('./config');
+const defaultConfig = require('./defaultConfig');
 const request = require('request');
 const moment = require('moment');
 
 const Transaction = require('./models/transaction');
 
 const app = express();
+const config = process.env.NODE_ENV ? defaultConfig : devConfig;
 
 mongoose.connect(config.database);
 mongoose.connection.on('error', function() {
   console.info('Error: Could not connect to MongoDB. Did you forget to run `mongod`?');
 });
 
+const allowCrossDomain = function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+    // intercept OPTIONS method
+    ('OPTIONS' == req.method) ? res.send(200) : next();
+};
+
+// Configuration
+app.use(allowCrossDomain);
 app.set('port', config.port);
 app.use(logger('dev'));
 app.use(bodyParser.json());
