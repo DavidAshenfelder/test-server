@@ -3,7 +3,7 @@ const express = require('express');
 const logger = require('morgan');
 const path = require('path');
 const mongoose = require('mongoose');
-const devConfig = require('./config');
+// const devConfig = require('./config');
 const defaultConfig = require('./defaultConfig');
 const request = require('request');
 const moment = require('moment');
@@ -11,7 +11,7 @@ const moment = require('moment');
 const Transaction = require('./models/transaction');
 
 const app = express();
-const config = process.env.NODE_ENV ? defaultConfig : devConfig;
+const config = defaultConfig;
 
 mongoose.connect(config.database);
 mongoose.connection.on('error', function() {
