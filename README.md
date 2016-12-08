@@ -55,7 +55,7 @@ npm start
 	"prod": "mongodb://<username>:<password>@ds<555555>.mlab.com:<55555>/your-mLabDatabase"
 }
 ```
-- Insert fake data into the `./seeds` directory, and name the file `<:collection>.js`.
+- Insert fake data into the `./seeds` directory, and name the file `<:collection>.json`.
 - Run Command
 ```sh
 seed
