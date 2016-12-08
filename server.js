@@ -3,18 +3,19 @@ const express = require('express');
 const logger = require('morgan');
 const path = require('path');
 const mongoose = require('mongoose');
-// const devConfig = require('./config');
-const defaultConfig = require('./defaultConfig');
+const config = require('./config');
+// const config = require('./defaultConfig');
 const request = require('request');
 const moment = require('moment');
 
 const Transaction = require('./models/transaction');
 
 const app = express();
-const config = defaultConfig;
-
 mongoose.connect(config.database);
-mongoose.connection.on('error', function() {
+
+const db = mongoose.connection;
+
+db.on('error', function() {
   console.info('Error: Could not connect to MongoDB. Did you forget to run `mongod`?');
 });
 
@@ -34,6 +35,39 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+//get all collections
+app.get('/collections', (req, res, next) => {
+  mongoose.connection.db.listCollections().toArray(function(err, names) {
+      if(err) return next(err);
+      res.send(names);
+  });
+});
+
+
+// Get all transactions
+app.get('/transactions', (req, res, next) => {
+  Transaction.find((err, transactions) => {
+    if(err) return next(err);
+    res.send(transactions);
+  });
+});
+
+// Get all transactions by contactId
+app.get('/transactions/:contactId', (req, res, next) => {
+  Transaction.find({contactId: req.params.contactId}, (err, transactions) => {
+    if(err) return next(err);
+    res.send(transactions);
+  });
+});
+
+// Get transaction by id
+app.get('/transaction/:id', (req, res, next) => {
+  Transaction.findOne({_id: req.params.id}, (err, transaction) => {
+    if(err) return next(err);
+    res.send(transaction);
+  });
+});
+
 // Add transaction
 app.post('/transactions', (req, res, next) => {
     var body = req.body;
@@ -43,9 +77,20 @@ app.post('/transactions', (req, res, next) => {
       dateAdded: moment(),
     });
     transaction.save(function (err) {
-      if(err) return next({ err });
+      if(err) return next(err);
       res.send({ status: 200, response: { transaction, text: `Successfully saved` } });
     });
+});
+
+// update transaction
+app.put('/transaction/:id', (req, res, next) => {
+  var transaction = req.body;
+  Transaction.findOneAndUpdate({_id: req.params.id}, transaction, function(err) {
+    console.log('error');
+    if(err) return next(err);
+    console.log('no error');
+    res.send({ status: 200, response: { transaction, text: `Successfully saved` } });
+  });
 });
 
 // Delete transaction
@@ -55,14 +100,6 @@ app.delete('/transactions', (req, res, next) => {
     if(err) return next(err);
     console.log(transaction);
     res.send({ status: 200, response: `Successfully deleted transaction` });
-  });
-});
-
-// Get all transactions
-app.get('/transactions', (req, res, next) => {
-  Transaction.find((err, transactions) => {
-    if(err) return next(err);
-    res.send(transactions);
   });
 });
 
