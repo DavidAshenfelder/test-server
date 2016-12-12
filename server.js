@@ -4,8 +4,6 @@ const router = express.Router();
 const logger = require('morgan');
 const path = require('path');
 const mongoose = require('mongoose');
-const mongoskin = require('mongoskin');
-const DB = mongoskin.db((process.env.MONGOLAB_URI || 'localhost:27017/test'), {safe: true});
 const config = require('./config');
 // const config = require('./defaultConfig');
 const request = require('request');
@@ -40,8 +38,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // app.use(express.static(path.join(__dirname, 'public')));
 
 router.param('collectionName', function(req, res, next, collectionName) {
-  console.log('DB', DB.collection );
-  req.collection = DB.collection(collectionName);
+  console.log('DB', db.collection );
+  req.collection = db.collection(collectionName);
   next();
 });
 
