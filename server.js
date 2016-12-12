@@ -1,10 +1,13 @@
 const bodyParser = require('body-parser');
 const express = require('express');
+const router = express.Router();
 const logger = require('morgan');
 const path = require('path');
 const mongoose = require('mongoose');
-// const config = require('./config');
-const config = require('./defaultConfig');
+const mongoskin = require('mongoskin');
+const DB = mongoskin.db((process.env.MONGOLAB_URI || 'localhost:27017/test'), {safe: true});
+const config = require('./config');
+// const config = require('./defaultConfig');
 const request = require('request');
 const moment = require('moment');
 
@@ -29,11 +32,18 @@ const allowCrossDomain = function(req, res, next) {
 
 // Configuration
 app.use(allowCrossDomain);
+app.use(router);
 app.set('port', config.port);
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
+
+router.param('collectionName', function(req, res, next, collectionName) {
+  console.log('DB', DB.collection );
+  req.collection = DB.collection(collectionName);
+  next();
+});
 
 //get all collections
 app.get('/collections', (req, res, next) => {
@@ -43,25 +53,60 @@ app.get('/collections', (req, res, next) => {
   });
 });
 
+router.route('/:collectionName')
 
-// Get all transactions
-app.get('/transactions', (req, res, next) => {
-  Transaction.find((err, transactions) => {
+// GET /collections/:collectionName
+.get(function(req, res, next) {
+  const hasQuery = !!Object.keys(req.query).length;
+  const query = req.query || {};
+  if (hasQuery) {
+    console.log(req.collection);
+    req.collection.findOne({_id: query.id}, {}, (err, results) => {
+      console.log('documents', query, err);
+      if(err) return next(err);
+      console.log(results);
+      res.send(results);
+    });
+  } else {
+    req.collection.find(query, {sort: [['_id',-1]]}).toArray(function(err, results){
+      if (err) { return next(err); }
+      res.send(results);
+    });
+  }
+})
+// Delete transaction
+.delete((req, res, next) => {
+
+  const body = bodyParser(req.body);
+  console.log('body', body);
+
+  req.collection.remove({ _id: req.body.id }, (err, result) => {
     if(err) return next(err);
-    res.send(transactions);
+    console.log(result);
+    res.send({ status: 200, response: `Successfully deleted transaction` });
   });
 });
 
+router.route('/:collectionName/:attrKey/:keyValue')
 // Get all transactions by contactId
-app.get('/transactions/:contactId', (req, res, next) => {
-  Transaction.find({contactId: req.params.contactId}, (err, transactions) => {
+.get((req, res, next) => {
+  const attrKey = req.params.attrKey;
+  const value = req.params.keyValue;
+  console.log(value);
+  const query = {
+    [attrKey]: value
+  }
+  console.log('query', query);
+  req.collection.find(query).toArray((err, documents) => {
+    console.log('err', err);
+    console.log('documents', documents);
     if(err) return next(err);
-    res.send(transactions);
+    res.send(documents);
   });
 });
 
 // Get transaction by id
-app.get('/transaction/:id', (req, res, next) => {
+app.get('/:collectionName/:id', (req, res, next) => {
   Transaction.findOne({_id: req.params.id}, (err, transaction) => {
     if(err) return next(err);
     res.send(transaction);
@@ -93,20 +138,12 @@ app.put('/transaction/:id', (req, res, next) => {
   });
 });
 
-// Delete transaction
-app.delete('/transactions', (req, res, next) => {
-  console.log('body', req.body);
-  Transaction.remove({ _id: req.body.id }, (err, transaction) => {
-    if(err) return next(err);
-    console.log(transaction);
-    res.send({ status: 200, response: `Successfully deleted transaction` });
-  });
-});
+
 
 app.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-app.use('*', function(req, res, next) {
-  res.sendFile(__dirname + '/public/index.html');
-});
+// app.use('*', function(req, res, next) {
+//   res.sendFile(__dirname + '/index.html');
+// });
