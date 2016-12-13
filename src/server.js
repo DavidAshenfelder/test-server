@@ -7,8 +7,8 @@ const logger = require('morgan');
 const path = require('path');
 const mongoose = require('mongoose');
 var ObjectId = require('mongodb').ObjectID;
-const config = require('../config');
-// const config = require('../defaultConfig');
+// const config = require('../config');
+const config = require('../defaultConfig');
 const request = require('request');
 const moment = require('moment');
 
