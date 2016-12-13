@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node lib/server.js",
+    "build": "babel src -d lib"
   },
   "author": "",
   "license": "ISC",
@@ -13,10 +14,17 @@
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "moment": "^2.17.1",
+    "mongodb": "^2.2.15",
     "mongoose": "^4.7.1",
     "morgan": "^1.7.0",
     "node-mongo-seeds": "^2.3.0",
     "path": "^0.12.7",
     "request": "^2.79.0"
-  }
+  },
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-preset-latest": "^6.16.0",
+    "babelify": "^7.3.0"
+  },
+  "transform": [["babelify", { "comments": false }]]
 }
