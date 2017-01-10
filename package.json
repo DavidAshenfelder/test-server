@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node lib/server.js",
-    "build": "babel src -d lib"
+    "build": "babel src -d lib",
+    "deploy": "babel src -d lib && git push heroku master"
   },
   "author": "",
   "license": "ISC",
