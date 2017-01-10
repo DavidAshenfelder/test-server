@@ -26,9 +26,9 @@ db.on('error', function() {
 const allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, X-Requested-With, Access-Token, Accept');
+    res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Content-Length, X-Requested-With, Access-Token, Accept');
     // intercept OPTIONS method
-    ('OPTIONS' == req.method) ? res.send(200) : next();
+    next();
 };
 
 // Configuration
