@@ -105,17 +105,6 @@ router.route('/:collectionName/:id')
   });
 })
 
-// Delete transaction
-.delete((req, res, next) => {
-  console.log(req.body);
-  /*ObjectId(req.params.id)*/
-  req.collection.remove({ transactionId: req.params.id }, (err, result) => {
-    if(err) return next(err);
-    console.log(result);
-    res.send({ status: 200, response: `Successfully deleted transaction` });
-  });
-})
-
 // update transaction
 .put((req, res, next) => {
   delete req.body._id;
@@ -126,6 +115,23 @@ router.route('/:collectionName/:id')
     res.send({ status: 200, response: { item, text: `Successfully saved` } });
   });
 });
+
+router.route('/:collectionName/:key/:value')
+
+// Delete transaction
+.delete((req, res, next) => {
+  console.log(req.body);
+  let apiValue = req.params.value;
+  const key = req.params.key;
+  if (req.params.key === '_id') {
+    apiValue = ObjectId(req.params.value);
+  }
+  req.collection.remove({ [key]: apiValue }, (err, result) => {
+    if(err) return next(err);
+    console.log(result);
+    res.send({ status: 200, response: `Successfully deleted transaction` });
+  });
+})
 
 app.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));
