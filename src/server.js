@@ -108,7 +108,7 @@ router.route('/:collectionName/:id')
 // Delete transaction
 .delete((req, res, next) => {
   console.log(req.body);
-  req.collection.remove({ _id: ObjectId(req.params.id) }, (err, result) => {
+  req.collection.remove({ transactionId: ObjectId(req.params.id) }, (err, result) => {
     if(err) return next(err);
     console.log(result);
     res.send({ status: 200, response: `Successfully deleted transaction` });
