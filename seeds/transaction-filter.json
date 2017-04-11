@@ -1,0 +1,17 @@
+[{
+  "closeDate": {
+    "min":"2016-01-27T14:41:00.606Z",
+    "max":"2016-01-27T14:49:50.678Z"
+  },
+  "sourceNames" : [],
+  "primaryAgentIds": ["1234","6789"],
+  "unassigned": null,
+  "statuses": ["underContract","activeListing","preListing"],
+  "price": {
+    "min":"150000",
+    "max":"150000"
+  },
+  "orgId": "2",
+  "activeListingIds":["1234457","1234458"],
+  "types":["buyer", "seller"]
+}]

@@ -55,7 +55,7 @@ router.route('/collections')
   });
 });
 
-router.route('/:collectionName')
+router.route('/collections/:collectionName')
 
 // GET /collections/:collectionName
 .get(function(req, res, next) {
@@ -94,7 +94,7 @@ router.route('/:collectionName')
 });
 
 
-router.route('/:collectionName/:id')
+router.route('/collections/:collectionName/:id')
 // Get all transactions by contactId
 .get((req, res, next) => {
   req.collection.findOne({'_id': new ObjectId(req.params.id)}, (err, result) => {
@@ -116,7 +116,7 @@ router.route('/:collectionName/:id')
   });
 });
 
-router.route('/:collectionName/:key/:value')
+router.route('/collections/:collectionName/:key/:value')
 
 // Delete transaction
 .delete((req, res, next) => {
@@ -132,6 +132,47 @@ router.route('/:collectionName/:key/:value')
     res.send({ status: 200, response: `Successfully deleted transaction` });
   });
 })
+
+.get((req, res, next) => {
+  let apiValue = req.params.value;
+  const key = req.params.key;
+  if (req.params.key === '_id') {
+    apiValue = ObjectId(req.params.value);
+  }
+  req.collection.findOne({ [key]: apiValue }, (err, result) => {
+    console.log('result', result);
+    if(err) return next(err);
+    if (!!result) {
+      res.send(result);
+    } else {
+      res.send([]);
+    }
+  });
+})
+
+.post((req, res, next) => {
+  let apiValue = req.params.value;
+  const key = req.params.key;
+  if (req.params.key === '_id') {
+    apiValue = ObjectId(req.params.value);
+  }
+  const item = req.body;
+  req.collection.findOne({ [key]: apiValue }, (err, result) => {
+    console.log('result', result);
+    if(err) return next(err);
+    if (item && (!result || result.length === 0)) {
+      req.collection.insert(item, function (err) {
+        if(err) return next(err);
+        res.send({ status: 200, response: { item, text: `Successfully saved` } });
+      });
+    } else if (item && !!result) {
+      req.collection.findOneAndUpdate({ [key]: apiValue }, {$set: item}, function(err) {
+        if(err) return next(err);
+        res.send({ status: 200, response: { item, text: `Successfully saved` } });
+      });
+    }
+  });
+});
 
 app.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));

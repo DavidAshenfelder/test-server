@@ -32,7 +32,8 @@ npm install
 mongod
 ```
 ** MongoDB reference if you are not familiar https://scotch.io/tutorials/an-introduction-to-mongodb
-
+*** IMPORTANT - if you are committing this to a repo `.gitignore` this file.
+(you do not want to share these credentials with the world.)
 - rename defaultConfig.js to config.js file in root directory
 - Replace code with:
 ```
@@ -46,6 +47,8 @@ npm start
 
 ## Seeding Data
 - Create `seed.json` file in root directory
+*** IMPORTANT - if you are committing this to a repo `.gitignore` this file.
+(you do not want to share these credentials with the world.)
 - insert code
 ```
 {
